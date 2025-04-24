@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { Buffer } from "buffer"; // Importing Buffer for browser support
-import { Aptos, AptosConfig, Network, Account } from "@aptos-labs/ts-sdk"; // Removed HexString import
+
+import { Buffer } from "buffer";
+import { Aptos, AptosConfig, Network, Account } from "@aptos-labs/ts-sdk";
+import { Button } from "./ui/button";
 
 function TrialForm() {
     const [trialId, setTrialId] = useState("");
@@ -12,7 +14,6 @@ function TrialForm() {
         setLoading(true);
         setMessage("");
 
-        // Validate input values before proceeding
         if (!trialId || !description) {
             setMessage("Please fill in both Trial ID and Description.");
             setLoading(false);
@@ -20,12 +21,10 @@ function TrialForm() {
         }
 
         try {
-            // Initialize Aptos client
             const config = new AptosConfig({ network: Network.DEVNET });
             const aptos = new Aptos(config);
 
-            // Use your existing account address (ensure private key is in the correct format)
-            const privateKeyHex = "b893c949706f40c17528d95cb4a867969fb8fc39aed740c5823dacfe6068dd5f"; // Ensure this is a valid private key
+            const privateKeyHex = "b893c949706f40c17528d95cb4a867969fb8fc39aed740c5823dacfe6068dd5f";key
             console.log("Private key:", privateKeyHex);
 
             const privateKeyBytes = Uint8Array.from(Buffer.from(privateKeyHex, "hex"));
@@ -42,13 +41,11 @@ function TrialForm() {
                 return;
             }
 
-            // Fund the account using the faucet (only available on Devnet/Testnet)
             await aptos.fundAccount({
                 accountAddress: account.accountAddress,
-                amount: 100_000_000, // Amount in Octas (1 APT = 10^8 Octas)
+                amount: 100_000_000,
             });
 
-            // Build the transaction payload to interact with the deployed `ClinicalTrials` module
             const transaction = await aptos.transaction.build.simple({
                 sender: account.accountAddress,
                 data: {
@@ -58,13 +55,11 @@ function TrialForm() {
                 },
             });
 
-            // Sign and submit the transaction
             const committedTransaction = await aptos.signAndSubmitTransaction({
                 signer: account,
                 transaction,
             });
 
-            // Wait for the transaction to be confirmed
             await aptos.waitForTransaction({ transactionHash: committedTransaction.hash });
 
             setMessage("Clinical Trial Registered Successfully!");
@@ -94,9 +89,9 @@ function TrialForm() {
                 disabled={loading}
             />
             <br />
-            <button onClick={handleSubmit} disabled={loading}>
+            <Button variant="outline" onClick={handleSubmit} disabled={loading}>
                 {loading ? "Submitting..." : "Submit"}
-            </button>
+            </Button>
             {message && <p>{message}</p>}
         </div>
     );
